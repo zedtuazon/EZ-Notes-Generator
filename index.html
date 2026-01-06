@@ -13,21 +13,8 @@
     }
 
     h2 { margin-bottom: 12px; }
-
-    label.section {
-      font-weight: bold;
-      margin-top: 12px;
-      display: block;
-    }
-
-    input, select, textarea {
-      padding: 6px;
-      margin-top: 4px;
-      font-size: 13px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
+    label.section { font-weight: bold; margin-top: 12px; display: block; }
+    input, select, textarea { padding: 6px; margin-top: 4px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
     textarea { min-height: 80px; width: 100%; }
     select { max-width: 260px; }
 
@@ -46,20 +33,11 @@
 
     .arrow { font-weight: bold; color: #555; margin-left: 5px; margin-right: 5px; }
 
-    .remove-btn {
-      width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc;
-      background: #f5f5f5; cursor: pointer; font-size: 14px;
-      display: flex; align-items: center; justify-content: center;
-    }
+    .remove-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
     .remove-btn:hover { background: #e0e0e0; }
 
-    button {
-      margin-top: 12px; padding: 6px 12px; font-size: 13px;
-      cursor: pointer; border-radius: 4px; border: 1px solid #ccc;
-      background: #f7f7f7;
-    }
+    button { margin-top: 12px; padding: 6px 12px; font-size: 13px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; }
     button:hover { background: #ededed; }
-
     .actions { display: flex; gap: 10px; margin-top: 14px; }
   </style>
 </head>
@@ -98,8 +76,8 @@
 
 <label class="section">Calendar Sync Configured</label>
 <div class="radio-group">
-  <label><input type="radio" name="calendarSync" value="Yes"><span class="yes">✔</span>Yes</label>
-  <label><input type="radio" name="calendarSync" value="No"><span class="no">✖</span>No</label>
+  <label><input type="radio" name="calendarSync" value="Yes"> <span class="yes">✔</span>Yes</label>
+  <label><input type="radio" name="calendarSync" value="No"> <span class="no">✖</span>No</label>
 </div>
 
 <label class="section">Configs / Operatory Setup</label>
@@ -107,7 +85,7 @@
 <button onclick="addConfig()">+ Add Operatory</button>
 
 <label class="section">Blocker</label>
-<textarea id="blocker"></textarea>
+<textarea id="blocker" placeholder="- "></textarea>
 
 <label class="section">Setup Summary</label>
 <textarea id="setupSummary" placeholder="- Calendar sync completed"></textarea>
@@ -124,25 +102,24 @@ const BACKEND_URL = "https://notes-backend-yheh.onrender.com";
 /* Duration dropdown */
 function durationDropdown() {
   let html = `<select class="duration"><option value="">Duration</option>`;
-  for (let i = 5; i <= 120; i += 5) html += `<option>${i} mins</option>`;
+  for (let i = 5; i <= 120; i+=5) html += `<option>${i} mins</option>`;
   return html + `</select>`;
 }
 
 /* Strategy dropdown */
 function strategyDropdown() {
   return `<select class="strategy">
-      <option value="Any Room">Any Room</option>
-      <option value="All Rooms">All Rooms</option>
-      <option value="Sequential">Sequential</option>
-    </select>`;
+    <option value="Any Room">Any Room</option>
+    <option value="All Rooms">All Rooms</option>
+    <option value="Sequential">Sequential</option>
+  </select>`;
 }
 
-/* Add operatory row */
-function addConfig(isSequentialSecond = false) {
+/* Add config row */
+function addConfig(isSequentialSecond=false) {
   const row = document.createElement("div");
   row.className = "config-row";
-  
-  // If second sequential row, remove strategy dropdown
+
   const strategyHtml = isSequentialSecond ? "" : strategyDropdown();
   const arrowHtml = isSequentialSecond ? '<span class="arrow">→</span>' : '<span class="arrow" style="display:none;">→</span>';
 
@@ -159,31 +136,23 @@ function addConfig(isSequentialSecond = false) {
 
   // Remove button
   row.querySelector(".remove-btn").onclick = () => {
-    // If first sequential row is removed, also remove second
     const rows = [...document.querySelectorAll(".config-row")];
     const index = rows.indexOf(row);
-    if(strategySelect && strategySelect.value === "Sequential" && rows[index + 1]){
-      rows[index + 1].remove();
-    }
+    if(strategySelect && strategySelect.value==="Sequential" && rows[index+1]) rows[index+1].remove();
     row.remove();
   };
 
-  // Sequential auto-add logic (only for first row)
+  // Sequential auto-add
   if(strategySelect){
-    strategySelect.addEventListener("change", () => {
+    strategySelect.addEventListener("change",()=>{
       const rows = [...document.querySelectorAll(".config-row")];
       const index = rows.indexOf(row);
-
-      if (strategySelect.value === "Sequential") {
-        arrowSpan.style.display = "inline";
-        // Only add second sequential row if not exists
-        if(!rows[index + 1]) addConfig(true);
+      if(strategySelect.value==="Sequential"){
+        arrowSpan.style.display="inline";
+        if(!rows[index+1]) addConfig(true);
       } else {
-        arrowSpan.style.display = "none";
-        // Remove second sequential row if exists
-        if(rows[index + 1] && !rows[index + 1].querySelector(".strategy")){
-          rows[index + 1].remove();
-        }
+        arrowSpan.style.display="none";
+        if(rows[index+1] && !rows[index+1].querySelector(".strategy")) rows[index+1].remove();
       }
     });
   }
@@ -193,76 +162,84 @@ function addConfig(isSequentialSecond = false) {
 addConfig();
 
 /* Clear all */
-function clearAll() {
-  document.querySelectorAll("input").forEach(i => {
-    if (i.type === "radio") i.checked = false;
-    else i.value = "";
+function clearAll(){
+  document.querySelectorAll("input").forEach(i=>{
+    if(i.type==="radio") i.checked=false;
+    else i.value="";
   });
-  document.querySelectorAll("textarea").forEach(t => t.value = "");
-  document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
-  configsContainer.innerHTML = "";
+  document.querySelectorAll("textarea").forEach(t=>t.value="");
+  document.querySelectorAll("select").forEach(s=>s.selectedIndex=0);
+  configsContainer.innerHTML="";
   addConfig();
 }
 
-/* Auto bullets */
-setupSummary.addEventListener("keydown", e => {
-  if (e.key === "Enter") { e.preventDefault(); setupSummary.value += "\n- "; }
+/* Auto bullets for summary */
+setupSummary.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ e.preventDefault(); setupSummary.value += "\n- "; }
+});
+setupSummary.addEventListener("blur", ()=>{
+  setupSummary.value = setupSummary.value
+    .split("\n").map(l=>l.trim()).filter(Boolean)
+    .map(l=>l.startsWith("-")?l:`- ${l}`).join("\n");
 });
 
-setupSummary.addEventListener("blur", () => {
-  setupSummary.value = setupSummary.value
-    .split("\n")
-    .map(l => l.trim())
-    .filter(Boolean)
-    .map(l => l.startsWith("-") ? l : `- ${l}`)
-    .join("\n");
+/* Auto bullets for blocker */
+blocker.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ e.preventDefault(); blocker.value += "\n- "; }
+});
+blocker.addEventListener("blur", ()=>{
+  blocker.value = blocker.value
+    .split("\n").map(l=>l.trim()).filter(Boolean)
+    .map(l=>l.startsWith("-")?l:`- ${l}`).join("\n");
+});
+
+/* Calendar sync default N/A */
+document.querySelectorAll('input[name="calendarSync"]').forEach(r=>{
+  r.addEventListener("change", ()=>{
+    const rows = [...document.querySelectorAll(".config-row")];
+    if(rows.length===0) configsContainer.innerHTML = '<div>- N/A</div>';
+  });
 });
 
 /* GPT Fix */
-gptFixBtn.onclick = async () => {
+gptFixBtn.onclick=async()=>{
   if(!setupSummary.value) return;
-  const res = await fetch(`${BACKEND_URL}/summary`, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ text: setupSummary.value })
+  const res=await fetch(`${BACKEND_URL}/summary`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text:setupSummary.value})
   });
-  const data = await res.json();
-  setupSummary.value = data.cleaned;
+  const data=await res.json();
+  setupSummary.value=data.cleaned;
 };
 
-/* Copy */
-copyBtn.onclick = async () => {
-  const serverAccess = document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
-  const calendarSync = document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
+/* Copy note */
+copyBtn.onclick=async()=>{
+  const serverAccess=document.querySelector('input[name="serverAccess"]:checked')?.value||"Not set";
+  const calendarSync=document.querySelector('input[name="calendarSync"]:checked')?.value||"Not set";
 
-  const rows = [...document.querySelectorAll(".config-row")];
-  const configs = rows.map((r, i) => {
-    const op = r.querySelector("input").value;
-    const dur = r.querySelector(".duration").value;
-    const strat = r.querySelector(".strategy");
-    const isSequentialSecond = !strat; // no strategy select = second sequential
-
+  const rows=[...document.querySelectorAll(".config-row")];
+  const configs=rows.map((r,i)=>{
+    const op=r.querySelector("input").value;
+    const dur=r.querySelector(".duration")?.value||"";
+    const strat=r.querySelector(".strategy");
+    const isSequentialSecond=!strat;
     if(isSequentialSecond){
-      const prev = rows[i-1];
-      const prevOp = prev.querySelector("input").value;
-      const prevDur = prev.querySelector(".duration").value;
+      const prev=rows[i-1];
+      const prevOp=prev.querySelector("input").value;
+      const prevDur=prev.querySelector(".duration").value;
       return `- ${prevOp} | ${prevDur} → ${op} | ${dur} Sequential`;
     }
-
-    if(strat.value === "Sequential" && rows[i+1]){
-      // first row, skip here, second row handled above
-      return '';
-    }
-
-    return `- ${op} | ${dur} | ${strat.value}`;
+    if(strat && strat.value==="Sequential" && rows[i+1]) return "";
+    return `- ${op} | ${dur} | ${strat?strat.value:""}`;
   }).filter(Boolean).join("\n");
 
-  const note = `
+  const note=`
 ${integrationType.value}
 
 Contact Name: ${contactName.value}
 Phone Number: ${phoneNumber.value}
-Integration Status: ${integrationStatus.value || "Not set"}
+Integration Status: ${integrationStatus.value||"Not set"}
 
 Server Access: ${serverAccess}
 Calendar Sync Configured: ${calendarSync}
