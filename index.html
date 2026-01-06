@@ -81,8 +81,8 @@
 <div class="actions">
   <button id="gptFixBtn">Fix Grammar</button>
   <button id="copyBtn">Copy to Clipboard</button>
-  <button onclick="clearAll()">Clear All</button>
 </div>
+<button style="margin-top: 10px;" onclick="clearAll()">Clear All</button>
 
 <script>
 const BACKEND_URL = "https://notes-backend-yheh.onrender.com";
@@ -160,16 +160,6 @@ function clearAll(){
   enableConfigs(true);
 }
 
-/* Auto bullets for summary */
-setupSummary.addEventListener("keydown", e=>{
-  if(e.key==="Enter"){ e.preventDefault(); setupSummary.value += "\n- "; }
-});
-setupSummary.addEventListener("blur", ()=>{
-  setupSummary.value = setupSummary.value
-    .split("\n").map(l=>l.trim()).filter(Boolean)
-    .map(l=>l.startsWith("-")?l:`- ${l}`).join("\n");
-});
-
 /* Auto bullets for blocker */
 blocker.addEventListener("keydown", e=>{
   if(e.key==="Enter"){ e.preventDefault(); blocker.value += "\n- "; }
@@ -180,10 +170,24 @@ blocker.addEventListener("blur", ()=>{
     .map(l=>l.startsWith("-")?l:`- ${l}`).join("\n");
 });
 
+/* Setup Summary - flexible new lines with auto-bullets on blur */
+setupSummary.addEventListener("keydown", e=>{
+  // Allow Enter freely, do nothing
+});
+
+setupSummary.addEventListener("blur", ()=>{
+  setupSummary.value = setupSummary.value
+    .split("\n")
+    .map(l=>l.trim())
+    .filter(Boolean)
+    .map(l=>l.startsWith("-")?l:`- ${l}`)
+    .join("\n");
+});
+
 /* Enable/Disable configs */
 function enableConfigs(enable){
   document.querySelectorAll(".config-row input, .config-row select").forEach(el=>{
-    if(el.tagName==="SELECT" || el.tagName==="INPUT") el.disabled = !enable;
+    el.disabled = !enable;
     if(!enable) el.classList.add("disabled"); else el.classList.remove("disabled");
   });
   addBtn.disabled = !enable;
@@ -216,36 +220,41 @@ gptFixBtn.onclick=async()=>{
 };
 
 /* Copy note */
-copyBtn.onclick=async()=>{
-  const serverAccess=document.querySelector('input[name="serverAccess"]:checked')?.value||"Not set";
-  const calendarSync=document.querySelector('input[name="calendarSync"]:checked')?.value||"Not set";
+copyBtn.onclick = async () => {
+  const serverAccess = document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
+  const calendarSync = document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
 
-  const rows=[...document.querySelectorAll(".config-row")];
-  const configs=rows.map((r,i)=>{
-    const op=r.querySelector("input")?.value || "";
-    const dur=r.querySelector(".duration")?.value || "";
-    const strat=r.querySelector(".strategy");
-    const isSequentialSecond = !strat;
+  const rows = [...document.querySelectorAll(".config-row")];
+  let configs = "";
 
-    if(rows.length===1 && r.innerText.trim()==="- N/A") return "- N/A";
+  // Handle - N/A
+  if(rows.length === 1 && rows[0].innerText.trim() === "- N/A"){
+    configs = "- N/A";
+  } else {
+    configs = rows.map((r, i) => {
+      const op = r.querySelector("input")?.value || "";
+      const dur = r.querySelector(".duration")?.value || "";
+      const strat = r.querySelector(".strategy");
+      const isSequentialSecond = !strat;
 
-    if(isSequentialSecond){
-      const prev=rows[i-1];
-      const prevOp=prev.querySelector("input").value;
-      const prevDur=prev.querySelector(".duration").value;
-      return `- ${prevOp} | ${prevDur} → ${op} | ${dur} Sequential`;
-    }
+      if(isSequentialSecond){
+        const prev = rows[i - 1];
+        const prevOp = prev.querySelector("input").value;
+        const prevDur = prev.querySelector(".duration").value;
+        return `- ${prevOp} | ${prevDur} → ${op} | ${dur} Sequential`;
+      }
 
-    if(strat && strat.value==="Sequential" && rows[i+1]) return "";
-    return `- ${op} | ${dur} | ${strat?strat.value:""}`;
-  }).filter(Boolean).join("\n");
+      if(strat && strat.value === "Sequential" && rows[i + 1]) return "";
+      return `- ${op} | ${dur} | ${strat ? strat.value : ""}`;
+    }).filter(Boolean).join("\n");
+  }
 
-  const note=`
+  const note = `
 ${integrationType.value}
 
 Contact Name: ${contactName.value}
 Phone Number: ${phoneNumber.value}
-Integration Status: ${integrationStatus.value||"Not set"}
+Integration Status: ${integrationStatus.value || "Not set"}
 
 Server Access: ${serverAccess}
 Calendar Sync Configured: ${calendarSync}
