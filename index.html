@@ -85,6 +85,13 @@
       width: 140px;
     }
 
+    .arrow {
+      font-weight: bold;
+      color: #555;
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+
     .remove-btn {
       width: 28px;
       height: 28px;
@@ -209,30 +216,32 @@ function addConfig() {
     <input placeholder="Column / Operatory">
     ${durationDropdown()}
     ${strategyDropdown()}
+    <span class="arrow" style="display:none;">→</span>
     <button class="remove-btn">✕</button>
   `;
 
+  const strategySelect = row.querySelector(".strategy");
+  const arrowSpan = row.querySelector(".arrow");
+
+  // Remove button
   row.querySelector(".remove-btn").onclick = () => row.remove();
 
-  // Auto-add next operatory if Sequential selected
-  row.querySelector(".strategy").addEventListener("change", () => {
-    if (row.querySelector(".strategy").value === "Sequential") {
-      ensureNextRow(row);
+  // Sequential auto-add logic
+  strategySelect.addEventListener("change", () => {
+    const rows = [...document.querySelectorAll(".config-row")];
+    const index = rows.indexOf(row);
+
+    if (strategySelect.value === "Sequential") {
+      arrowSpan.style.display = "inline";
+      // Auto-add next row if missing
+      if (!rows[index + 1]) addConfig();
+    } else {
+      arrowSpan.style.display = "none";
     }
   });
 
   configsContainer.appendChild(row);
 }
-
-/* Ensure next operatory exists for sequential */
-function ensureNextRow(currentRow) {
-  const rows = [...document.querySelectorAll(".config-row")];
-  const index = rows.indexOf(currentRow);
-  if (!rows[index + 1]) {
-    addConfig();
-  }
-}
-
 addConfig();
 
 /* Clear all */
