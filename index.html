@@ -13,8 +13,8 @@
 
     label {
       font-weight: bold;
-      display: block;
       margin-top: 15px;
+      display: block;
     }
 
     input, select, textarea {
@@ -25,11 +25,7 @@
     }
 
     textarea {
-      min-height: 80px;
-    }
-
-    .radio-group {
-      margin-top: 5px;
+      min-height: 90px;
     }
 
     .radio-group label {
@@ -37,26 +33,23 @@
       margin-right: 15px;
     }
 
-    button {
-      margin-top: 15px;
-      margin-right: 10px;
-      padding: 8px 14px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
     .config-row {
       display: grid;
-      grid-template-columns: 1fr 1fr auto;
+      grid-template-columns: 1.2fr 1fr auto;
       gap: 10px;
       margin-top: 10px;
       align-items: center;
     }
 
+    button {
+      margin-top: 15px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
     .remove-btn {
       background: #eee;
       border: 1px solid #ccc;
-      cursor: pointer;
     }
   </style>
 </head>
@@ -106,7 +99,7 @@
 <textarea id="blocker"></textarea>
 
 <label>Setup Summary</label>
-<textarea id="setupSummary" placeholder="Write setup summary..."></textarea>
+<textarea id="setupSummary" placeholder="- Calendar sync completed"></textarea>
 
 <button id="gptFixBtn">Fix Grammar & Bullet Points</button>
 <button id="copyBtn">Copy Full Note</button>
@@ -114,27 +107,57 @@
 <script>
 const BACKEND_URL = "https://notes-backend-yheh.onrender.com";
 
-/* ---------- Dynamic Config Rows ---------- */
-function addConfig(column = "", duration = "") {
+/* ---------- Duration Options ---------- */
+function createDurationDropdown(selected = "") {
+  let options = `<option value="">Select duration</option>`;
+  for (let i = 5; i <= 120; i += 5) {
+    const label = `${i} mins`;
+    options += `<option ${selected === label ? "selected" : ""}>${label}</option>`;
+  }
+  return `<select>${options}</select>`;
+}
+
+/* ---------- Dynamic Operatory Rows ---------- */
+function addConfig() {
   const row = document.createElement("div");
   row.className = "config-row";
 
   row.innerHTML = `
-    <input placeholder="Column / Operatory" value="${column}">
-    <input placeholder="Duration (e.g. 90 mins)" value="${duration}">
+    <input placeholder="Column / Operatory">
+    ${createDurationDropdown()}
     <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>
   `;
 
   document.getElementById("configsContainer").appendChild(row);
 }
 
-// Add one row by default
+// Add one default row
 addConfig();
+
+/* ---------- Auto Bullet Setup Summary ---------- */
+const setupSummary = document.getElementById("setupSummary");
+
+setupSummary.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    setupSummary.value += "\n- ";
+  }
+});
+
+setupSummary.addEventListener("blur", () => {
+  const lines = setupSummary.value
+    .split("\n")
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(l => l.startsWith("-") ? l : `- ${l}`);
+
+  setupSummary.value = lines.join("\n");
+});
 
 /* ---------- GPT Fix ---------- */
 document.getElementById("gptFixBtn").onclick = async () => {
-  const text = document.getElementById("setupSummary").value;
-  if (!text) return alert("Please enter a setup summary first.");
+  const text = setupSummary.value;
+  if (!text) return alert("Please enter a setup summary.");
 
   try {
     const res = await fetch(`${BACKEND_URL}/summary`, {
@@ -143,14 +166,10 @@ document.getElementById("gptFixBtn").onclick = async () => {
       body: JSON.stringify({ text })
     });
 
-    if (!res.ok) {
-      alert("Backend error. Check logs.");
-      return;
-    }
+    if (!res.ok) throw new Error("Backend error");
 
     const data = await res.json();
-    document.getElementById("setupSummary").value = data.cleaned;
-
+    setupSummary.value = data.cleaned;
   } catch (err) {
     console.error(err);
     alert("Failed to connect to backend.");
@@ -164,10 +183,11 @@ document.getElementById("copyBtn").onclick = async () => {
   const calendarSync =
     document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
 
-  const configRows = [...document.querySelectorAll(".config-row")].map(row => {
-    const inputs = row.querySelectorAll("input");
-    return `- ${inputs[0].value} | ${inputs[1].value}`;
-  }).join("\n");
+  const configs = [...document.querySelectorAll(".config-row")]
+    .map(row => {
+      const [op, dur] = row.querySelectorAll("input, select");
+      return `- ${op.value} | ${dur.value}`;
+    }).join("\n");
 
   const note = `
 OCS Tracker Integration: ${integrationType.value}
@@ -179,7 +199,7 @@ Server Access: ${serverAccess}
 Calendar Sync Configured: ${calendarSync}
 
 Configs / Operatory Setup:
-${configRows}
+${configs}
 
 Blocker:
 ${blocker.value}
@@ -189,7 +209,7 @@ ${setupSummary.value}
 `;
 
   await navigator.clipboard.writeText(note.trim());
-  alert("Full note copied to clipboard!");
+  alert("Full note copied!");
 };
 </script>
 
