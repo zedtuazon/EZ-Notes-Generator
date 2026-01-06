@@ -65,13 +65,13 @@
 <script>
 const state = { serverAccess: null, calendarSync: null };
 
+// Replace with your deployed notes-backend URL
+const BACKEND_URL = "https://notes-backend.onrender.com";
+
 function setYesNo(field, value) {
   state[field] = value;
   alert(`${field} set to ${value ? "Yes" : "No"}`);
 }
-
-// Replace this with your Render backend URL
-const BACKEND_URL = "https://notes-backend.onrender.com";
 
 document.getElementById("gptFixBtn").onclick = async () => {
   const text = document.getElementById("setupSummary").value;
@@ -84,17 +84,21 @@ document.getElementById("gptFixBtn").onclick = async () => {
       body: JSON.stringify({ text })
     });
 
+    console.log("Response status:", res.status);
+
     if (!res.ok) {
       const errorText = await res.text();
-      alert(`Backend error: ${res.status}\n${errorText}`);
+      console.log("Backend returned:", errorText);
+      alert(`Backend error: ${res.status}\nCheck console for details`);
       return;
     }
 
     const data = await res.json();
     document.getElementById("setupSummary").value = data.cleaned;
+
   } catch (err) {
-    alert(`Failed to connect to backend.\nCheck the URL and backend logs.`);
-    console.error(err);
+    console.error("Fetch error:", err);
+    alert(`Failed to connect to backend.\nCheck console for details`);
   }
 };
 
