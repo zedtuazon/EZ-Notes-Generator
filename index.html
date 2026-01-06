@@ -172,7 +172,7 @@ blocker.addEventListener("blur", ()=>{
 
 /* Setup Summary - flexible new lines with auto-bullets on blur */
 setupSummary.addEventListener("keydown", e=>{
-  // Allow Enter freely, do nothing
+  // Allow Enter freely
 });
 
 setupSummary.addEventListener("blur", ()=>{
@@ -224,13 +224,11 @@ copyBtn.onclick = async () => {
   const serverAccess = document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
   const calendarSync = document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
 
-  const rows = [...document.querySelectorAll(".config-row")];
   let configs = "";
-
-  // Handle - N/A
-  if(rows.length === 1 && rows[0].innerText.trim() === "- N/A"){
-    configs = "- N/A";
+  if(calendarSync === "No"){
+    configs = "- N/A";  // FIX: always include - N/A when Calendar Sync is No
   } else {
+    const rows = [...document.querySelectorAll(".config-row")];
     configs = rows.map((r, i) => {
       const op = r.querySelector("input")?.value || "";
       const dur = r.querySelector(".duration")?.value || "";
