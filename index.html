@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OCS Tracker Notes</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 800px; margin: auto; }
+    textarea, input, select { width: 100%; margin: 5px 0 15px; padding: 5px; font-size: 14px; }
+    button { margin-right: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer; }
+    label { font-weight: bold; display: block; margin-top: 10px; }
+    .yesno button { width: 60px; }
+  </style>
+</head>
+<body>
+
+<h2>OCS Tracker Integration Notes</h2>
+
+<label>OCS Tracker Integration</label>
+<select id="integrationType">
+  <option>OCS Integration</option>
+  <option>OpenDental API Integration</option>
+  <option>Denticon Integration</option>
+  <option>NexHealth Integration</option>
+  <option>Sikka Integration</option>
+</select>
+
+<label>Contact Name</label>
+<input id="contactName" placeholder="Contact Name" />
+
+<label>Phone Number</label>
+<input id="phoneNumber" placeholder="Phone Number" />
+
+<label>Integration Status</label>
+<select id="integrationStatus">
+  <option>Pending</option>
+  <option>Active</option>
+  <option>Stalled</option>
+</select>
+
+<label>Server Access</label>
+<div class="yesno">
+  <button onclick="setYesNo('serverAccess', true)">Yes</button>
+  <button onclick="setYesNo('serverAccess', false)">No</button>
+</div>
+
+<label>Calendar Sync Configured</label>
+<div class="yesno">
+  <button onclick="setYesNo('calendarSync', true)">Yes</button>
+  <button onclick="setYesNo('calendarSync', false)">No</button>
+</div>
+
+<label>Configs / Operatory Setup</label>
+<input id="configs" placeholder="Configs / Operatory Setup" />
+
+<label>Blocker</label>
+<textarea id="blocker" placeholder="Blocker"></textarea>
+
+<label>Setup Summary</label>
+<textarea id="setupSummary" placeholder="Write setup summary..."></textarea>
+
+<br>
+<button id="gptFixBtn">Fix Grammar & Bullet Points</button>
+<button id="copyBtn">Copy Full Note</button>
+
+<script>
+const state = { serverAccess: null, calendarSync: null };
+
+function setYesNo(field, value) {
+  state[field] = value;
+  alert(`${field} set to ${value ? "Yes" : "No"}`);
+}
+
+// GPT grammar / bullet point correction
+document.getElementById("gptFixBtn").onclick = async () => {
+  const text = document.getElementById("setupSummary").value;
+  if (!text) return alert("Write something in Setup Summary first.");
+
+  try {
+    const res = await fetch("https://YOUR_BACKEND_URL/summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await res.json();
+    document.getElementById("setupSummary").value = data.cleaned;
+  } catch (err) {
+    alert("Failed to correct summary. Check backend URL.");
+    console.error(err);
+  }
+};
+
+// Copy full note
+document.getElementById("copyBtn").onclick = async () => {
+  const fullNote = `
+OCS Tracker Integration: ${document.getElementById("integrationType").value}
+Contact Name: ${document.getElementById("contactName").value}
+Phone Number: ${document.getElementById("phoneNumber").value}
+Integration Status: ${document.getElementById("integrationStatus").value}
+
+Server Access: ${state.serverAccess === null ? "Not set" : state.serverAccess ? "Yes" : "No"}
+Calendar Sync Configured: ${state.calendarSync === null ? "Not set" : state.calendarSync ? "Yes" : "No"}
+
+Configs / Operatory Setup:
+${document.getElementById("configs").value}
+
+Blocker:
+${document.getElementById("blocker").value}
+
+Setup Summary:
+${document.getElementById("setupSummary").value}
+`;
+
+  await navigator.clipboard.writeText(fullNote.trim());
+  alert("Complete note copied!");
+};
+</script>
+
+</body>
+</html>
