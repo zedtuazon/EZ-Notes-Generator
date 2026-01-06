@@ -49,11 +49,13 @@
 
 <label class="section">Integration Type</label>
 <select id="integrationType">
-  <option>OCS Integration</option>
-  <option>OpenDental API Integration</option>
-  <option>Denticon Integration</option>
-  <option>NexHealth Integration</option>
-  <option>Sikka Integration</option>
+  <option value="" selected disabled>Select Integration Type</option>
+  <option>Opencare Sync</option>
+  <option>NexHealth API</option>
+  <option>Sikka API</option>
+  <option>Carestack API</option>
+  <option>Denticon API</option>
+  <option>Opendental API</option>
 </select>
 
 <label class="section">Contact Info</label>
@@ -99,7 +101,6 @@
 <button style="margin-top: 10px;" onclick="clearAll()">🧹 Clear All</button>
 
 <script>
-// ------------------ JS code (same as previous full version) ------------------
 const BACKEND_URL = "https://notes-backend-yheh.onrender.com";
 const configsContainer = document.getElementById("configsContainer");
 const addBtn = document.getElementById("addOperatoryBtn");
@@ -238,8 +239,8 @@ gptFixBtn.onclick=async()=>{
 
 /* Copy note */
 copyBtn.onclick = async () => {
-  const integrationTypeVal = integrationType.value;
-  const integrationStatusVal = integrationStatus.value;
+  const integrationTypeVal = integrationType.value || "Not selected";
+  const integrationStatusVal = integrationStatus.value || "Not set";
   const serverAccessVal = document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
   const calendarSyncVal = document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
 
@@ -267,11 +268,11 @@ copyBtn.onclick = async () => {
   }
 
   const note = `
-${integrationTypeVal}
+Integration Type: ${integrationTypeVal}
 
 Contact Name: ${contactName.value}
 Phone Number: ${phoneNumber.value}
-Integration Status: ${integrationStatusVal || "Not set"}
+Integration Status: ${integrationStatusVal}
 
 Server Access: ${serverAccessVal}
 Calendar Sync Configured: ${calendarSyncVal}
@@ -290,7 +291,7 @@ ${setupSummary.value}
   alert("Copied to clipboard");
 };
 
-/* ========== Validation for required fields ========== */
+/* Validation for required fields */
 function validateFields() {
   const integrationTypeVal = integrationType.value;
   const integrationStatusVal = integrationStatus.value;
@@ -313,7 +314,6 @@ function validateFields() {
   copyBtn.disabled = !(integrationTypeVal && integrationStatusVal && serverAccessVal && calendarSyncVal && configsFilled);
 }
 
-/* Event listeners for real-time validation */
 integrationType.addEventListener("change", validateFields);
 integrationStatus.addEventListener("change", validateFields);
 document.querySelectorAll('input[name="serverAccess"]').forEach(r => r.addEventListener("change", validateFields));
@@ -321,7 +321,6 @@ document.querySelectorAll('input[name="calendarSync"]').forEach(r => r.addEventL
 configsContainer.addEventListener("input", validateFields);
 configsContainer.addEventListener("change", validateFields);
 
-// Initial setup
 addConfig();
 validateFields();
 </script>
