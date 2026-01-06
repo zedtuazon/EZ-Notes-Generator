@@ -2,142 +2,191 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>OCS Tracker Notes</title>
+  <title>Note Takers</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 900px;
+      max-width: 880px;
       margin: auto;
-      padding: 20px;
+      padding: 18px;
+      font-size: 14px;
     }
 
-    label {
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    label.section {
       font-weight: bold;
-      margin-top: 15px;
+      margin-top: 10px;
       display: block;
     }
 
     input, select, textarea {
       width: 100%;
-      padding: 6px;
-      margin-top: 5px;
-      font-size: 14px;
+      padding: 5px;
+      margin-top: 3px;
+      font-size: 13px;
     }
 
     textarea {
-      min-height: 90px;
+      min-height: 80px;
+    }
+
+    /* Compact radio buttons with icons */
+    .radio-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
     }
 
     .radio-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
       font-weight: normal;
-      margin-right: 15px;
     }
+
+    .radio-group input {
+      margin: 0;
+    }
+
+    .yes-icon { color: green; font-weight: bold; }
+    .no-icon { color: red; font-weight: bold; }
 
     .config-row {
       display: grid;
       grid-template-columns: 1.2fr 1fr auto;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 8px;
+      margin-top: 6px;
       align-items: center;
     }
 
     button {
-      margin-top: 15px;
-      padding: 8px 14px;
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-size: 13px;
       cursor: pointer;
     }
 
     .remove-btn {
       background: #eee;
       border: 1px solid #ccc;
+      padding: 3px 8px;
+    }
+
+    /* Summary preview */
+    .preview {
+      margin-top: 16px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    .preview-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
 
-<h2>OCS Tracker Integration Notes</h2>
+<h2>Note Takers</h2>
 
-<label>OCS Tracker Integration</label>
-<select id="integrationType">
-  <option>OCS Integration</option>
-  <option>OpenDental API Integration</option>
-  <option>Denticon Integration</option>
-  <option>NexHealth Integration</option>
-  <option>Sikka Integration</option>
-</select>
+<label class="section">Integration Type</label>
+<select id="integrationType"></select>
 
-<label>Contact Name</label>
+<label class="section">Contact Name</label>
 <input id="contactName" />
 
-<label>Phone Number</label>
+<label class="section">Phone Number</label>
 <input id="phoneNumber" />
 
-<label>Integration Status</label>
+<label class="section">Integration Status</label>
 <select id="integrationStatus">
   <option>Pending</option>
   <option>Active</option>
   <option>Stalled</option>
 </select>
 
-<label>Server Access</label>
+<label class="section">Server Access</label>
 <div class="radio-group">
-  <label><input type="radio" name="serverAccess" value="Yes"> Yes</label>
-  <label><input type="radio" name="serverAccess" value="No"> No</label>
+  <label><input type="radio" name="serverAccess" value="Yes"><span class="yes-icon">✔</span>Yes</label>
+  <label><input type="radio" name="serverAccess" value="No"><span class="no-icon">✖</span>No</label>
 </div>
 
-<label>Calendar Sync Configured</label>
+<label class="section">Calendar Sync Configured</label>
 <div class="radio-group">
-  <label><input type="radio" name="calendarSync" value="Yes"> Yes</label>
-  <label><input type="radio" name="calendarSync" value="No"> No</label>
+  <label><input type="radio" name="calendarSync" value="Yes"><span class="yes-icon">✔</span>Yes</label>
+  <label><input type="radio" name="calendarSync" value="No"><span class="no-icon">✖</span>No</label>
 </div>
 
-<label>Configs / Operatory Setup</label>
+<label class="section">Configs / Operatory Setup</label>
 <div id="configsContainer"></div>
 <button onclick="addConfig()">+ Add Operatory</button>
 
-<label>Blocker</label>
+<label class="section">Blocker</label>
 <textarea id="blocker"></textarea>
 
-<label>Setup Summary</label>
+<label class="section">Setup Summary</label>
 <textarea id="setupSummary" placeholder="- Calendar sync completed"></textarea>
 
-<button id="gptFixBtn">Fix Grammar & Bullet Points</button>
+<button id="gptFixBtn">Fix Grammar</button>
 <button id="copyBtn">Copy Full Note</button>
+
+<!-- LIVE PREVIEW -->
+<div class="preview">
+  <div class="preview-title">Live Summary Preview</div>
+  <div id="previewContent"></div>
+</div>
 
 <script>
 const BACKEND_URL = "https://notes-backend-yheh.onrender.com";
 
-/* ---------- Duration Options ---------- */
-function createDurationDropdown(selected = "") {
-  let options = `<option value="">Select duration</option>`;
+/* Integration dropdown */
+const integrationOptions = [
+  "OCS Integration",
+  "OpenDental API Integration",
+  "Denticon Integration",
+  "NexHealth Integration",
+  "Sikka Integration"
+];
+integrationOptions.forEach(o => {
+  const opt = document.createElement("option");
+  opt.textContent = o;
+  integrationType.appendChild(opt);
+});
+
+/* Duration dropdown */
+function createDurationDropdown() {
+  let options = `<option value="">Duration</option>`;
   for (let i = 5; i <= 120; i += 5) {
-    const label = `${i} mins`;
-    options += `<option ${selected === label ? "selected" : ""}>${label}</option>`;
+    options += `<option>${i} mins</option>`;
   }
   return `<select>${options}</select>`;
 }
 
-/* ---------- Dynamic Operatory Rows ---------- */
+/* Add config row */
 function addConfig() {
   const row = document.createElement("div");
   row.className = "config-row";
-
   row.innerHTML = `
     <input placeholder="Column / Operatory">
     ${createDurationDropdown()}
     <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>
   `;
-
-  document.getElementById("configsContainer").appendChild(row);
+  configsContainer.appendChild(row);
+  updatePreview();
 }
-
-// Add one default row
 addConfig();
 
-/* ---------- Auto Bullet Setup Summary ---------- */
-const setupSummary = document.getElementById("setupSummary");
-
-setupSummary.addEventListener("keydown", (e) => {
+/* Auto bullets */
+setupSummary.addEventListener("keydown", e => {
   if (e.key === "Enter") {
     e.preventDefault();
     setupSummary.value += "\n- ";
@@ -145,52 +194,42 @@ setupSummary.addEventListener("keydown", (e) => {
 });
 
 setupSummary.addEventListener("blur", () => {
-  const lines = setupSummary.value
+  setupSummary.value = setupSummary.value
     .split("\n")
     .map(l => l.trim())
     .filter(Boolean)
-    .map(l => l.startsWith("-") ? l : `- ${l}`);
-
-  setupSummary.value = lines.join("\n");
+    .map(l => l.startsWith("-") ? l : `- ${l}`)
+    .join("\n");
+  updatePreview();
 });
 
-/* ---------- GPT Fix ---------- */
-document.getElementById("gptFixBtn").onclick = async () => {
-  const text = setupSummary.value;
-  if (!text) return alert("Please enter a setup summary.");
-
-  try {
-    const res = await fetch(`${BACKEND_URL}/summary`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-
-    if (!res.ok) throw new Error("Backend error");
-
-    const data = await res.json();
-    setupSummary.value = data.cleaned;
-  } catch (err) {
-    console.error(err);
-    alert("Failed to connect to backend.");
-  }
+/* GPT Fix */
+gptFixBtn.onclick = async () => {
+  if (!setupSummary.value) return;
+  const res = await fetch(`${BACKEND_URL}/summary`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: setupSummary.value })
+  });
+  const data = await res.json();
+  setupSummary.value = data.cleaned;
+  updatePreview();
 };
 
-/* ---------- Copy Full Note ---------- */
-document.getElementById("copyBtn").onclick = async () => {
-  const serverAccess =
-    document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
-  const calendarSync =
-    document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
+/* Build note */
+function buildNote() {
+  const serverAccess = document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
+  const calendarSync = document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
 
   const configs = [...document.querySelectorAll(".config-row")]
-    .map(row => {
-      const [op, dur] = row.querySelectorAll("input, select");
+    .map(r => {
+      const [op, dur] = r.querySelectorAll("input, select");
       return `- ${op.value} | ${dur.value}`;
     }).join("\n");
 
-  const note = `
-OCS Tracker Integration: ${integrationType.value}
+  return `
+${integrationType.value}
+
 Contact Name: ${contactName.value}
 Phone Number: ${phoneNumber.value}
 Integration Status: ${integrationStatus.value}
@@ -206,9 +245,18 @@ ${blocker.value}
 
 Setup Summary:
 ${setupSummary.value}
-`;
+`.trim();
+}
 
-  await navigator.clipboard.writeText(note.trim());
+/* Live preview */
+function updatePreview() {
+  previewContent.textContent = buildNote();
+}
+document.addEventListener("input", updatePreview);
+
+/* Copy */
+copyBtn.onclick = async () => {
+  await navigator.clipboard.writeText(buildNote());
   alert("Full note copied!");
 };
 </script>
