@@ -16,13 +16,14 @@ select { max-width: 260px; }
 .yes { color: green; font-weight: bold; }
 .no { color: red; font-weight: bold; }
 
-.provider-group { margin-top: 12px; padding: 6px 0; border-bottom: 1px solid #ddd; }
+.provider-group { margin-top: 12px; padding: 6px 0; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 6px; }
 .config-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
 .config-row input { width: 40%; }
 .config-row select.duration { width: 100px; }
 .config-row select.strategy { width: 140px; }
 .arrow { font-weight: bold; color: #555; margin: 0 5px; }
 .remove-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.remove-btn:hover { background: #e0e0e0; }
 button { margin-top: 12px; padding: 6px 12px; font-size: 13px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; display:flex; align-items:center; gap:6px; }
 button:disabled { background:#f0f0f0; cursor:not-allowed; }
 .actions { display: flex; gap: 10px; margin-top: 14px; }
@@ -156,20 +157,22 @@ function addProvider(){
   const providerGroup = document.createElement("div");
   providerGroup.className = "provider-group";
   providerGroup.innerHTML = `
-    <input class="provider-name" placeholder="Provider Name">
-    <button class="deleteProviderBtn" style="margin-left:10px;">🗑 Delete Provider</button>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <input class="provider-name" placeholder="Provider Name">
+      <button class="remove-btn">✕</button>
+    </div>
     <div class="config-group"></div>
     <button class="addOperatoryBtn">➕ Add Operatory</button>
   `;
   const configGroup = providerGroup.querySelector(".config-group");
   const addBtn = providerGroup.querySelector(".addOperatoryBtn");
-  const deleteBtn = providerGroup.querySelector(".deleteProviderBtn");
+  const removeBtn = providerGroup.querySelector(".remove-btn");
 
   addBtn.onclick = ()=>addOperatoryRow(configGroup,false);
-  deleteBtn.onclick = ()=>providerGroup.remove();
+  removeBtn.onclick = ()=>providerGroup.remove();
 
   providersContainer.appendChild(providerGroup);
-  addOperatoryRow(configGroup,false); // first operatory row
+  addOperatoryRow(configGroup,false);
 }
 
 /* Calendar Sync toggle */
