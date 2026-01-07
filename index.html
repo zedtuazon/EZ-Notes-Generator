@@ -135,7 +135,7 @@
 <textarea id="setupSummary" placeholder="- Calendar sync completed"></textarea>
 
 <div class="actions">
-  <button id="copyBtn" disabled>📋 Copy</button>
+  <button id="copyBtn" disabled>📋 Copy to Clipboard</button>
   <button id="gptFixBtn">✏️ Fix Grammar</button>
   <button id="saveFileBtn" disabled>💾 Save</button>
 </div>
@@ -146,6 +146,16 @@
 const BACKEND_URL = "https://notes-backend-yheh.onrender.com";
 const configsContainer = document.getElementById("configsContainer");
 const configsSection = document.getElementById("configsSection");
+
+const integrationType = document.getElementById("integrationType");
+const integrationStatus = document.getElementById("integrationStatus");
+const contactName = document.getElementById("contactName");
+const phoneNumber = document.getElementById("phoneNumber");
+const blocker = document.getElementById("blocker");
+const setupSummary = document.getElementById("setupSummary");
+const copyBtn = document.getElementById("copyBtn");
+const saveFileBtn = document.getElementById("saveFileBtn");
+const gptFixBtn = document.getElementById("gptFixBtn");
 
 /* Dropdown builders */
 function durationDropdown(){
@@ -162,7 +172,7 @@ function strategyDropdown(){
   </select>`;
 }
 
-/* Add config */
+/* Add config row */
 function addConfig(isSequentialSecond=false){
   const row = document.createElement("div");
   row.className = "config-row";
@@ -185,6 +195,8 @@ function addConfig(isSequentialSecond=false){
       if(strategy.value === "Sequential"){
         arrow.style.display = "inline";
         addConfig(true);
+      } else {
+        arrow.style.display = "none";
       }
     };
   }
@@ -208,7 +220,44 @@ document.querySelectorAll('input[name="calendarSync"]').forEach(r=>{
   };
 });
 
-/* Clear */
+/* Generate full note */
+function generateCurrentNote(){
+  const serverAccess = document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
+  const calendarSync = document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
+
+  let configsText = "- N/A";
+  if(calendarSync==="Yes"){
+    const rows = [...document.querySelectorAll(".config-row")];
+    configsText = rows.map((r, i)=>{
+      const op = r.querySelector("input")?.value || "";
+      const dur = r.querySelector(".duration")?.value || "";
+      const strat = r.querySelector(".strategy")?.value || "";
+      return `- ${op} | ${dur}${strat ? " | "+strat : ""}`;
+    }).join("\n");
+  }
+
+  return `
+Integration Type: ${integrationType.value || "Not selected"}
+
+Contact Name: ${contactName.value}
+Phone Number: ${phoneNumber.value}
+Integration Status: ${integrationStatus.value || "Not set"}
+
+Server Access: ${serverAccess}
+Calendar Sync Configured: ${calendarSync}
+
+Configs / Operatory Setup:
+${configsText}
+
+Blocker:
+${blocker.value}
+
+Setup Summary:
+${setupSummary.value}
+  `.trim();
+}
+
+/* Clear all */
 function clearAll(){
   document.querySelectorAll("input").forEach(i=>i.type==="radio"?i.checked=false:i.value="");
   document.querySelectorAll("textarea").forEach(t=>t.value="");
@@ -218,7 +267,7 @@ function clearAll(){
   validateFields();
 }
 
-/* Validation */
+/* Validate fields */
 function validateFields(){
   const required =
     integrationType.value &&
@@ -230,11 +279,25 @@ function validateFields(){
   saveFileBtn.disabled = !required;
 }
 
-/* Copy */
-copyBtn.onclick = () => navigator.clipboard.writeText("Note copied");
+/* Copy to Clipboard button */
+copyBtn.onclick = async () => {
+  const note = generateCurrentNote();
+  await navigator.clipboard.writeText(note);
+  alert("Copied to clipboard");
+};
 
-/* Save */
-saveFileBtn.onclick = () => alert("Saved");
+/* Save to file */
+saveFileBtn.onclick = () => {
+  const note = generateCurrentNote();
+  const practiceNameVal = document.getElementById("practiceName").value || "EZ_Note";
+  const blob = new Blob([note], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = practiceNameVal.replace(/[^a-z0-9]/gi, "_") + ".txt";
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 /* GPT Fix */
 gptFixBtn.onclick = async()=>{
@@ -246,6 +309,15 @@ gptFixBtn.onclick = async()=>{
   });
   setupSummary.value = (await res.json()).cleaned;
 };
+
+/* Auto-validate */
+[integrationType, integrationStatus, contactName, phoneNumber, blocker, setupSummary].forEach(el=>{
+  el.addEventListener("input", validateFields);
+});
+document.querySelectorAll('input[name="serverAccess"], input[name="calendarSync"]').forEach(r=>{
+  r.addEventListener("change", validateFields);
+});
+
 </script>
 </body>
 </html>
