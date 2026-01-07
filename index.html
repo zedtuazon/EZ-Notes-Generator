@@ -24,6 +24,8 @@ select { max-width: 260px; }
 .arrow { font-weight: bold; color: #555; margin: 0 5px; }
 .remove-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 .remove-btn:hover { background: #e0e0e0; }
+.add-btn { padding: 4px 10px; border-radius: 6px; border: 1px solid #ccc; background:#f7f7f7; cursor:pointer; font-size:14px; }
+.add-btn:hover { background:#eaeaea; }
 button { margin-top: 12px; padding: 6px 12px; font-size: 13px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; display:flex; align-items:center; gap:6px; }
 button:disabled { background:#f0f0f0; cursor:not-allowed; }
 .actions { display: flex; gap: 10px; margin-top: 14px; }
@@ -77,9 +79,10 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
   <label><input type="radio" name="calendarSync" value="No"> <span class="no">✖</span>No</label>
 </div>
 
+<!-- Providers section directly below Calendar Sync -->
 <div id="configsSection">
   <div id="providersContainer"></div>
-  <button onclick="addProvider()">➕ Add Provider</button>
+  <button class="add-btn" onclick="addProvider()">➕ Add Provider</button>
 </div>
 
 <label class="section">Blocker</label>
@@ -162,10 +165,10 @@ function addProvider(){
       <button class="remove-btn">✕</button>
     </div>
     <div class="config-group"></div>
-    <button class="addOperatoryBtn">➕ Add Operatory</button>
+    <button class="add-btn">➕ Add Operatory</button>
   `;
   const configGroup = providerGroup.querySelector(".config-group");
-  const addBtn = providerGroup.querySelector(".addOperatoryBtn");
+  const addBtn = providerGroup.querySelector(".add-btn");
   const removeBtn = providerGroup.querySelector(".remove-btn");
 
   addBtn.onclick = ()=>addOperatoryRow(configGroup,false);
