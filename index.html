@@ -16,7 +16,7 @@ select { max-width: 260px; }
 .yes { color: green; font-weight: bold; }
 .no { color: red; font-weight: bold; }
 
-.provider-group { margin-top: 12px; padding: 6px 0; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 6px; }
+.provider-group { margin-top: 12px; padding: 6px 0; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 6px; background: #fafafa; border-radius: 6px; padding: 8px; }
 .provider-header { display:flex; align-items:center; gap:6px; justify-content: space-between; }
 .config-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
 .config-row input { width: 40%; }
@@ -25,7 +25,7 @@ select { max-width: 260px; }
 .arrow { font-weight: bold; color: #555; margin: 0 5px; }
 .remove-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 .remove-btn:hover { background: #e0e0e0; }
-.add-btn { padding: 4px 10px; border-radius: 6px; border: 1px solid #ccc; background:#f7f7f7; cursor:pointer; font-size:14px; margin-top:6px; transition: all 0.2s; align-self:flex-start; }
+.add-btn { padding: 4px 10px; border-radius: 6px; border: 1px solid #ccc; background:#f7f7f7; cursor:pointer; font-size:14px; margin-top:6px; transition: all 0.2s; }
 .add-btn:hover { background:#e0f0ff; border-color:#4a90e2; }
 button { margin-top: 12px; padding: 6px 12px; font-size: 13px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; display:flex; align-items:center; gap:6px; }
 button:disabled { background:#f0f0f0; cursor:not-allowed; }
@@ -162,14 +162,14 @@ function addProvider(){
   providerGroup.innerHTML = `
     <div class="provider-header">
       <input class="provider-name" placeholder="Provider Name">
+      <button class="add-btn">➕ Add Operatory</button>
       <button class="remove-btn">✕</button>
     </div>
-    <button class="add-btn">➕ Add Operatory</button>
     <div class="config-group"></div>
   `;
   const configGroup = providerGroup.querySelector(".config-group");
-  const addBtn = providerGroup.querySelector(".add-btn");
-  const removeBtn = providerGroup.querySelector(".remove-btn");
+  const addBtn = providerGroup.querySelector(".provider-header .add-btn");
+  const removeBtn = providerGroup.querySelector(".provider-header .remove-btn");
 
   addBtn.onclick = ()=>addOperatoryRow(configGroup,false);
   removeBtn.onclick = ()=>{ providerGroup.remove(); validateFields(); };
@@ -342,7 +342,6 @@ document.getElementById("gptFixBtn").onclick = async()=>{
   });
   setupSummary.value = (await res.json()).cleaned;
 };
-
 </script>
 </body>
 </html>
