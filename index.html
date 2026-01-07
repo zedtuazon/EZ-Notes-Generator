@@ -20,7 +20,7 @@ label.section { font-weight: bold; margin-top: 12px; display: block; }
 input, select, textarea { padding:6px; margin-top:4px; font-size:14px; border:1px solid #ccc; border-radius:6px; }
 textarea { min-height:80px; width:100%; resize:vertical; }
 select { max-width:260px; }
-.contact-row { display:flex; gap:12px; margin-top:4px; align-items:center; }
+.contact-row { display:flex; gap:12px; margin-top:4px; }
 .contact-row input { flex:1; }
 .radio-group { display:flex; gap:16px; margin-top:6px; flex-wrap: wrap; }
 .radio-group label { display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
@@ -37,6 +37,7 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
 .actions { display:flex; gap:10px; margin-top:14px; }
 .disabled { background:#f0f0f0; pointer-events:none; }
 #practiceName { width:100%; height:34px; padding:6px; font-size:14px; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
+
 </style>
 </head>
 <body>
@@ -52,7 +53,7 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
   <button id="btnOnboardingNote">Onboarding Notes</button>
 </div>
 
-<!-- ==================== Integration Notes ==================== -->
+<!-- Integration Note Section -->
 <div id="sectionIntegrationNote" class="note-type-section active">
 
   <label class="section">Practice Name</label>
@@ -114,60 +115,33 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
 
 </div>
 
-<!-- ==================== Calendar/Resync Notes (empty) ==================== -->
+<!-- Calendar/Resync Notes Section -->
 <div id="sectionCalendarNote" class="note-type-section"></div>
 
-<!-- ==================== Onboarding Notes ==================== -->
+<!-- Onboarding Notes Section -->
 <div id="sectionOnboardingNote" class="note-type-section">
 
-  <!-- Compact row items -->
-  <div class="contact-row">
-    <label style="width:140px;">Main Contact Name:</label>
-    <input id="onboardContactName" placeholder="Main Contact Name">
-  </div>
-  <div class="contact-row">
-    <label style="width:140px;">Phone Number:</label>
-    <input id="onboardPhoneNumber" placeholder="Phone Number">
-  </div>
-  <div class="contact-row">
-    <label style="width:140px;">Sentiment:</label>
-    <input id="onboardSentiment" placeholder="Sentiment">
-  </div>
-  <div class="contact-row">
-    <label style="width:140px;">Tech Ability:</label>
-    <input id="onboardTechAbility" placeholder="Tech Ability">
-  </div>
+  <label class="section">Main Contact Name</label>
+  <input id="onboardContactName" placeholder="Main Contact Name">
+
+  <label class="section">Sentiment</label>
+  <input id="onboardSentiment" placeholder="Sentiment">
+
+  <label class="section">Tech Ability</label>
+  <input id="onboardTechAbility" placeholder="Tech Ability">
+
+  <label class="section">Phone Number</label>
+  <input id="onboardPhoneNumber" placeholder="Phone Number">
 
   <label class="section">Insurances Added</label>
-  <div id="insuranceContainer" style="margin-left:20px;">
-    <div>- Aetna Dental PPO/Basic/Advantage:
-      <label><input type="radio" name="insuranceAetna" value="Yes">Yes</label>
-      <label><input type="radio" name="insuranceAetna" value="No">No</label>
-    </div>
-    <div>- Cigna Dental PPO:
-      <label><input type="radio" name="insuranceCigna" value="Yes">Yes</label>
-      <label><input type="radio" name="insuranceCigna" value="No">No</label>
-    </div>
-    <div>- Delta Dental PPO:
-      <label><input type="radio" name="insuranceDelta" value="Yes">Yes</label>
-      <label><input type="radio" name="insuranceDelta" value="No">No</label>
-    </div>
-    <div>- Delta Dental Premier:
-      <label><input type="radio" name="insuranceDeltaPremier" value="Yes">Yes</label>
-      <label><input type="radio" name="insuranceDeltaPremier" value="No">No</label>
-    </div>
-    <div>- Guardian Dental PPO:
-      <label><input type="radio" name="insuranceGuardian" value="Yes">Yes</label>
-      <label><input type="radio" name="insuranceGuardian" value="No">No</label>
-    </div>
-    <div>- Metlife My Dental PPO/PDP Plus:
-      <label><input type="radio" name="insuranceMetlife" value="Yes">Yes</label>
-      <label><input type="radio" name="insuranceMetlife" value="No">No</label>
-    </div>
-    <div>- UnitedHealthcare Dental PPO:
-      <label><input type="radio" name="insuranceUnited" value="Yes">Yes</label>
-      <label><input type="radio" name="insuranceUnited" value="No">No</label>
-    </div>
+  <div class="radio-group">
+    <label><input type="checkbox" value="Aetna Dental PPO/Basic/Advantage">Aetna Dental PPO/Basic/Advantage</label>
+    <label><input type="checkbox" value="Cigna Dental PPO">Cigna Dental PPO</label>
+    <label><input type="checkbox" value="Delta Dental PPO">Delta Dental PPO</label>
+    <label><input type="checkbox" value="Delta Dental Premier">Delta Dental Premier</label>
+    <label><input type="checkbox" value="Guardian Dental PPO">Guardian Dental PPO</label>
+    <label><input type="checkbox" value="Metlife My Dental PPO/PDP Plus">Metlife My Dental PPO/PDP Plus</label>
+    <label><input type="checkbox" value="UnitedHealthcare Dental PPO">UnitedHealthcare Dental PPO</label>
   </div>
 
   <label class="section">Integration Eligible</label>
@@ -190,7 +164,7 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
   <button id="onboardFixGrammarBtn">✏️ Fix Grammar</button>
 
   <label class="section">Meeting Context Notes + Remaining Actions</label>
-  <textarea id="onboardMeetingNotes" style="min-height:350px;">
+  <textarea id="onboardMeetingNotes">
 - Made sure that the provider is updated (Hours/Services)
 - Confirmed that the insurance are added correctly and she will be updating it for new providers
 - Made sure that notifications set according to their preferences
@@ -274,12 +248,24 @@ function validateFields(){
   const integrationStatusVal=integrationStatus.value;
   const serverAccessVal=document.querySelector('input[name="serverAccess"]:checked')?.value;
   const calendarSyncVal=document.querySelector('input[name="calendarSync"]:checked')?.value;
-  copyBtn.disabled=!(integrationTypeVal&&integrationStatusVal&&serverAccessVal&&calendarSyncVal);
-  saveFileBtn.disabled=!(integrationTypeVal&&integrationStatusVal&&serverAccessVal&&calendarSyncVal&&practiceName.value);
+  let configsFilled=false;
+  if(calendarSyncVal==="No") configsFilled=true;
+  else{const rows=[...document.querySelectorAll(".config-row")]; configsFilled=rows.length>0 && rows.every(r=>{const op=r.querySelector("input")?.value; const dur=r.querySelector(".duration")?.value; const strat=r.querySelector(".strategy"); return op && dur && (strat||true);});}
+  const allRequiredFilled=integrationTypeVal && integrationStatusVal && serverAccessVal && calendarSyncVal && configsFilled;
+  copyBtn.disabled = !allRequiredFilled;
+  saveFileBtn.disabled = !allRequiredFilled;
 }
+integrationType.addEventListener("change",validateFields);
+integrationStatus.addEventListener("change",validateFields);
+document.querySelectorAll('input[name="serverAccess"]').forEach(r=>r.addEventListener("change",validateFields));
+document.querySelectorAll('input[name="calendarSync"]').forEach(r=>r.addEventListener("change",validateFields));
+configsContainer.addEventListener("input",validateFields);
+configsContainer.addEventListener("change",validateFields);
+addConfig();
+validateFields();
 
 // ===================== Onboarding Notes JS =====================
-const onboardFields={
+const onboardFields = {
   contactName: document.getElementById("onboardContactName"),
   sentiment: document.getElementById("onboardSentiment"),
   techAbility: document.getElementById("onboardTechAbility"),
@@ -290,10 +276,9 @@ const onboardFields={
   keyNotes: document.getElementById("onboardKeyNotes"),
   meetingNotes: document.getElementById("onboardMeetingNotes")
 };
-const onboardCopyBtn=document.getElementById("onboardCopyBtn");
-const onboardSaveFileBtn=document.getElementById("onboardSaveFileBtn");
-const onboardFixBtn=document.getElementById("onboardFixGrammarBtn");
-
+const onboardCopyBtn = document.getElementById("onboardCopyBtn");
+const onboardSaveFileBtn = document.getElementById("onboardSaveFileBtn");
+const onboardFixBtn = document.getElementById("onboardFixGrammarBtn");
 function onboardClearAll(){
   Object.values(onboardFields).forEach(f=>f.value="");
   document.querySelectorAll('#sectionOnboardingNote input[type="checkbox"]').forEach(c=>c.checked=false);
@@ -305,43 +290,48 @@ function validateOnboardFields(){
                          onboardFields.sentiment.value &&
                          onboardFields.techAbility.value &&
                          onboardFields.phoneNumber.value;
-  onboardCopyBtn.disabled=!requiredFilled;
-  onboardSaveFileBtn.disabled=!requiredFilled;
+  onboardCopyBtn.disabled = !requiredFilled;
+  onboardSaveFileBtn.disabled = !requiredFilled;
 }
-Object.values(onboardFields).forEach(f=>f.addEventListener("input",validateOnboardFields));
-document.querySelectorAll('#sectionOnboardingNote input[type="checkbox"]').forEach(c=>c.addEventListener("change",validateOnboardFields));
-document.querySelectorAll('input[name="postOBEmail"]').forEach(r=>r.addEventListener("change",validateOnboardFields));
-
-onboardCopyBtn.onclick=()=>{
-  const note=generateOnboardNote();
+Object.values(onboardFields).forEach(f=>f.addEventListener("input", validateOnboardFields));
+document.querySelectorAll('#sectionOnboardingNote input[type="checkbox"]').forEach(c=>c.addEventListener("change", validateOnboardFields));
+document.querySelectorAll('input[name="postOBEmail"]').forEach(r=>r.addEventListener("change", validateOnboardFields));
+onboardCopyBtn.onclick = ()=>{
+  const note = generateOnboardNote();
   navigator.clipboard.writeText(note);
   alert("Copied to clipboard");
 }
-onboardSaveFileBtn.onclick=()=>{
-  const note=generateOnboardNote();
-  const fileName=onboardFields.contactName.value||"Onboarding_Note";
-  const blob=new Blob([note],{type:"text/plain"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=fileName.replace(/[^a-z0-9]/gi,"_")+".txt";
+onboardSaveFileBtn.onclick = ()=>{
+  const note = generateOnboardNote();
+  const fileName = onboardFields.contactName.value || "Onboarding_Note";
+  const blob = new Blob([note], {type:"text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName.replace(/[^a-z0-9]/gi,"_")+".txt";
   a.click();
 }
-onboardFixBtn.onclick=async()=>{
+onboardFixBtn.onclick = async ()=>{
   if(!onboardFields.keyNotes.value) return;
   try{
-    const res=await fetch(`${BACKEND_URL}/summary`,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({text:onboardFields.keyNotes.value})});
-    const data=await res.json();
-    onboardFields.keyNotes.value=data.cleaned;
-  }catch(e){alert("Failed to connect to backend for grammar correction.");}
+    const res = await fetch(`${BACKEND_URL}/summary`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text:onboardFields.keyNotes.value})
+    });
+    const data = await res.json();
+    onboardFields.keyNotes.value = data.cleaned;
+  }catch(e){
+    alert("Failed to connect to backend for grammar correction.");
+  }
 }
 function generateOnboardNote(){
-  const insurances=[...document.querySelectorAll('#sectionOnboardingNote input[type="checkbox"]:checked')].map(c=>c.value).join(", ")||"None";
-  const postOBEmail=document.querySelector('input[name="postOBEmail"]:checked')?.value||"Not set";
+  const insurances = [...document.querySelectorAll('#sectionOnboardingNote input[type="checkbox"]:checked')].map(c=>c.value).join(", ") || "None";
+  const postOBEmail = document.querySelector('input[name="postOBEmail"]:checked')?.value || "Not set";
   return `
 Main Contact Name: ${onboardFields.contactName.value}
-Phone Number: ${onboardFields.phoneNumber.value}
 Sentiment: ${onboardFields.sentiment.value}
 Tech Ability: ${onboardFields.techAbility.value}
+Phone Number: ${onboardFields.phoneNumber.value}
 
 Insurances Added: ${insurances}
 Integration Eligible: ${onboardFields.integrationEligible.value}
