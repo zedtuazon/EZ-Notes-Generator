@@ -16,7 +16,7 @@ select { max-width: 260px; }
 .yes { color: green; font-weight: bold; }
 .no { color: red; font-weight: bold; }
 
-.provider-group { margin-top: 12px; padding: 6px 0; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 6px; position: relative; }
+.provider-group { margin-top: 12px; padding: 6px 0; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 6px; }
 .provider-header { display:flex; align-items:center; gap:6px; justify-content: space-between; }
 .config-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
 .config-row input { width: 40%; }
@@ -25,7 +25,7 @@ select { max-width: 260px; }
 .arrow { font-weight: bold; color: #555; margin: 0 5px; }
 .remove-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 .remove-btn:hover { background: #e0e0e0; }
-.add-btn { padding: 4px 10px; border-radius: 6px; border: 1px solid #ccc; background:#f7f7f7; cursor:pointer; font-size:14px; margin-top:6px; transition: all 0.2s; }
+.add-btn { padding: 4px 10px; border-radius: 6px; border: 1px solid #ccc; background:#f7f7f7; cursor:pointer; font-size:14px; margin-top:6px; transition: all 0.2s; align-self:flex-start; }
 .add-btn:hover { background:#e0f0ff; border-color:#4a90e2; }
 button { margin-top: 12px; padding: 6px 12px; font-size: 13px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; display:flex; align-items:center; gap:6px; }
 button:disabled { background:#f0f0f0; cursor:not-allowed; }
@@ -81,7 +81,7 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
   <label><input type="radio" name="calendarSync" value="No"> <span class="no">✖</span>No</label>
 </div>
 
-<!-- Fixed Add Provider button -->
+<!-- Provider Section -->
 <div id="configsSection">
   <button class="add-btn" id="addProviderBtn" onclick="addProvider()">➕ Add Provider</button>
   <div id="providersContainer"></div>
@@ -164,14 +164,13 @@ function addProvider(){
       <input class="provider-name" placeholder="Provider Name">
       <button class="remove-btn">✕</button>
     </div>
-    <div class="config-group"></div>
     <button class="add-btn">➕ Add Operatory</button>
+    <div class="config-group"></div>
   `;
   const configGroup = providerGroup.querySelector(".config-group");
   const addBtn = providerGroup.querySelector(".add-btn");
   const removeBtn = providerGroup.querySelector(".remove-btn");
 
-  addBtn.style.alignSelf="flex-end"; // right-align button
   addBtn.onclick = ()=>addOperatoryRow(configGroup,false);
   removeBtn.onclick = ()=>{ providerGroup.remove(); validateFields(); };
 
@@ -194,7 +193,7 @@ document.querySelectorAll('input[name="calendarSync"]').forEach(r=>{
   };
 });
 
-/* Auto-bullets for Blocker and Setup Summary */
+/* Auto-bullets */
 function enableAutoBullets(textarea){
   textarea.addEventListener("keydown", e=>{
     if(e.key === "Enter"){
@@ -209,7 +208,7 @@ function enableAutoBullets(textarea){
 enableAutoBullets(blocker);
 enableAutoBullets(setupSummary);
 
-/* Validate Fields to enable Copy/Save */
+/* Validate Fields */
 function validateFields(){
   const integrationTypeVal = integrationType.value;
   const integrationStatusVal = integrationStatus.value;
