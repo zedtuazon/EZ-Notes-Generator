@@ -28,7 +28,6 @@ select { max-width:260px; }
 .config-row input { width:40%; }
 .config-row select.duration { width:100px; }
 .config-row select.strategy { width:140px; }
-.arrow { font-weight:bold; color:#555; margin-left:5px; margin-right:5px; }
 .remove-btn { width:28px; height:28px; border-radius:50%; border:1px solid #ccc; background:#f5f5f5; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
 .remove-btn:hover { background:#e0e0e0; }
 button:disabled { background:#f0f0f0; cursor:not-allowed; }
@@ -57,10 +56,8 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
 
 <!-- ==================== Integration Notes ==================== -->
 <div id="sectionIntegrationNote" class="note-type-section active">
-
   <label class="section">Practice Name</label>
   <input id="practiceName" placeholder="Enter Practice Name (for file name only)">
-
   <label class="section">Integration Type</label>
   <select id="integrationType">
     <option value="" selected disabled>Select Integration Type</option>
@@ -71,13 +68,11 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
     <option>Denticon API</option>
     <option>Opendental API</option>
   </select>
-
   <label class="section">Contact Info</label>
   <div class="contact-row">
     <input id="contactName" placeholder="Contact Name">
     <input id="phoneNumber" placeholder="Phone Number">
   </div>
-
   <label class="section">Integration Status</label>
   <select id="integrationStatus">
     <option value="" selected disabled>Select status</option>
@@ -85,48 +80,71 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
     <option>Active</option>
     <option>Stalled</option>
   </select>
-
   <label class="section">Server Access</label>
   <div class="radio-group">
     <label><input type="radio" name="serverAccess" value="Yes"><span class="yes">✔</span>Yes</label>
     <label><input type="radio" name="serverAccess" value="No"><span class="no">✖</span>No</label>
   </div>
-
   <label class="section">Calendar Sync Configured</label>
   <div class="radio-group">
-    <label><input type="radio" name="calendarSync" value="Yes"><span class="yes">✔</span>Yes</label>
-    <label><input type="radio" name="calendarSync" value="No"><span class="no">✖</span>No</label>
+    <label><input type="radio" name="calendarSync" value="Yes"> <span class="yes">✔</span>Yes</label>
+    <label><input type="radio" name="calendarSync" value="No"> <span class="no">✖</span>No</label>
   </div>
-
   <label class="section">Configs / Operatory Setup</label>
   <div id="configsContainer"></div>
   <button id="addOperatoryBtn" onclick="addConfig()">➕ Add Operatory</button>
-
   <label class="section">Blocker</label>
   <textarea id="blocker" placeholder="• "></textarea>
-
   <label class="section">Setup Summary</label>
   <textarea id="setupSummary" placeholder="• Calendar sync completed"></textarea>
-
   <div class="actions">
-    <button id="copyBtn" disabled>📋 Copy to Clipboard</button>
+    <button id="copyBtn" disabled onclick="copyIntegrationNotes()">📋 Copy to Clipboard</button>
     <button id="gptFixBtn">✏️ Fix Grammar</button>
-    <button id="saveFileBtn" disabled>💾 Save to File</button>
+    <button id="saveFileBtn" disabled onclick="saveIntegrationNotes()">💾 Save to File</button>
   </div>
   <button style="margin-top:10px;" onclick="clearAll()">🧹 Clear All</button>
-
 </div>
-
-<!-- ==================== Calendar/Resync Notes (empty) ==================== -->
-<div id="sectionCalendarNote" class="note-type-section"></div>
 
 <!-- ==================== Onboarding Notes ==================== -->
 <div id="sectionOnboardingNote" class="note-type-section">
-  <!-- Onboarding UI here (same as previous code) -->
+  <label class="section">Main Contact Name</label>
+  <input id="onboardContact" placeholder="Main Contact Name">
+  <label class="section">Phone Number</label>
+  <input id="onboardPhone" placeholder="Phone Number">
+  <label class="section">Sentiment</label>
+  <input id="onboardSentiment" placeholder="Sentiment">
+  <label class="section">Tech Ability</label>
+  <input id="onboardTech" placeholder="Tech Ability">
+  <label class="section">Insurances Added</label>
+  <div class="insurance-container">
+    ${["Aetna Dental PPO/Basic/Advantage","Cigna Dental PPO","Delta Dental PPO","Delta Dental Premier","Guardian Dental PPO","Metlife My Dental PPO/PDP Plus","UnitedHealthcare Dental PPO"].map(i=>
+      `<div class="insurance-item"><span class="bullet">•</span><label>${i}: <input type="radio" name="${i}" value="Yes"> Yes <input type="radio" name="${i}" value="No"> No</label></div>`
+    ).join("")}
+  </div>
+  <label class="section">Integration Eligible</label>
+  <input id="onboardEligible" placeholder="Integration Eligible">
+  <label class="section">Integration Date</label>
+  <input id="onboardDate" placeholder="Integration Date">
+  <label class="section">Post-OB Email Sent</label>
+  <div class="radio-group">
+    <label><input type="radio" name="postOB" value="Yes">Yes</label>
+    <label><input type="radio" name="postOB" value="Pending">Pending</label>
+  </div>
+  <label class="section">Product Feedback</label>
+  <input id="onboardFeedback" placeholder="Product Feedback">
+  <label class="section">Key Notes</label>
+  <textarea id="onboardNotes" placeholder="• Key notes here"></textarea>
+  <label class="section">Meeting Context Notes + Remaining Actions</label>
+  <textarea id="onboardMeeting" placeholder="• Meeting notes here"></textarea>
+  <div class="actions">
+    <button id="copyOnboardingBtn" disabled onclick="copyOnboardingNotes()">📋 Copy to Clipboard</button>
+    <button id="saveOnboardingBtn" disabled onclick="saveOnboardingNotes()">💾 Save to File</button>
+  </div>
+  <button style="margin-top:10px;" onclick="clearOnboardingAll()">🧹 Clear All</button>
 </div>
 
 <script>
-// =================== JS logic for tab switching ===================
+// =================== Tab switching ===================
 const tabs = [
   {btn:'btnIntegrationNote', section:'sectionIntegrationNote'},
   {btn:'btnCalendarNote', section:'sectionCalendarNote'},
@@ -141,31 +159,78 @@ tabs.forEach(t=>{
     document.getElementById(t.btn).classList.add('active');
     document.getElementById(t.section).classList.add('active');
     validateIntegrationFields();
-    validateOnboardFields();
+    validateOnboardingFields();
   };
 });
 
-// =================== Integration Notes ===================
+// =================== Integration Notes Logic ===================
 const configsContainer = document.getElementById("configsContainer");
-function addConfig(){
+
+function addConfig(opValue="", durValue="5 mins", strategyValue="Any Room", isSequentialSecond=false){
   const row = document.createElement("div");
   row.className = "config-row";
+  row.dataset.sequentialSecond = isSequentialSecond ? "true" : "false";
   row.innerHTML = `
-    <input placeholder="Operatory / Column">
-    <select class="duration">${[...Array(24).keys()].map(i=>`<option>${(i+1)*5} mins</option>`).join('')}</select>
-    <select class="strategy">
-      <option>Any Room</option>
-      <option>All Rooms</option>
-      <option>Sequential</option>
+    <input placeholder="Operatory / Column" value="${opValue}" ${isSequentialSecond?'readonly style="background:#eee;"':''}>
+    <select class="duration" ${isSequentialSecond?'disabled':''}>
+      ${[...Array(24).keys()].map(i=>`<option ${(i+1)*5===parseInt(durValue)?'selected':''}>${(i+1)*5} mins</option>`).join('')}
     </select>
-    <span class="arrow">→</span>
-    <button class="remove-btn" onclick="this.parentElement.remove()">✖</button>
+    <select class="strategy" ${isSequentialSecond?'disabled':''}>
+      <option ${strategyValue==="Any Room"?'selected':''}>Any Room</option>
+      <option ${strategyValue==="All Rooms"?'selected':''}>All Rooms</option>
+      <option ${strategyValue==="Sequential"?'selected':''}>Sequential</option>
+    </select>
+    <button class="remove-btn" onclick="removeConfigRow(this)">✖</button>
   `;
   configsContainer.appendChild(row);
   validateIntegrationFields();
 }
 
-// =================== Integration Notes validation ===================
+function removeConfigRow(btn){
+  const row = btn.parentElement;
+  const nextRow = row.nextElementSibling;
+  const strategy = row.querySelector(".strategy")?.value;
+  row.remove();
+  if(strategy==="Sequential" && nextRow && nextRow.dataset.sequentialSecond==="true"){
+    nextRow.remove();
+  }
+  validateIntegrationFields();
+}
+
+// Calendar Sync logic
+document.querySelectorAll('input[name="calendarSync"]').forEach(radio=>{
+  radio.addEventListener("change",()=>{
+    const val = radio.value;
+    if(val==="No"){
+      configsContainer.innerHTML = "• N/A";
+      configsContainer.style.color="#888";
+      document.getElementById("addOperatoryBtn").disabled=true;
+    } else {
+      if(configsContainer.innerHTML==="• N/A"){ configsContainer.innerHTML=""; }
+      configsContainer.style.color="#000";
+      document.getElementById("addOperatoryBtn").disabled=false;
+    }
+    validateIntegrationFields();
+  });
+});
+
+// Sequential strategy listener
+configsContainer.addEventListener("change",(e)=>{
+  if(e.target.classList.contains("strategy")){
+    const row = e.target.parentElement;
+    if(e.target.value==="Sequential"){
+      if(!row.nextElementSibling || row.nextElementSibling.dataset.sequentialSecond!=="true"){
+        addConfig("Op2","5 mins","Sequential",true);
+      }
+    } else {
+      const next = row.nextElementSibling;
+      if(next && next.dataset.sequentialSecond==="true") next.remove();
+    }
+    validateIntegrationFields();
+  }
+});
+
+// =================== Integration Notes Copy/Save/Clear ===================
 function validateIntegrationFields(){
   const section = document.getElementById("sectionIntegrationNote");
   if(!section.classList.contains("active")) return;
@@ -193,29 +258,136 @@ function validateIntegrationFields(){
   document.getElementById("saveFileBtn").disabled = !allFilled;
 }
 
-// =================== Onboarding validation ===================
-const onboardFields={
-  contactName: document.getElementById("onboardContactName"),
-  sentiment: document.getElementById("onboardSentiment"),
-  techAbility: document.getElementById("onboardTechAbility"),
-  phoneNumber: document.getElementById("onboardPhoneNumber")
-};
-const onboardCopyBtn=document.getElementById("onboardCopyBtn");
-const onboardSaveFileBtn=document.getElementById("onboardSaveFileBtn");
+function copyIntegrationNotes(){
+  let text = "";
+  const type = document.getElementById("integrationType").value;
+  const contact = document.getElementById("contactName").value.trim();
+  const phone = document.getElementById("phoneNumber").value.trim();
+  const status = document.getElementById("integrationStatus").value;
+  const server = document.querySelector('input[name="serverAccess"]:checked')?.value;
+  const calendar = document.querySelector('input[name="calendarSync"]:checked')?.value;
+  const blocker = document.getElementById("blocker").value.trim();
+  const setup = document.getElementById("setupSummary").value.trim();
 
-function validateOnboardFields(){
-  const section=document.getElementById("sectionOnboardingNote");
-  if(!section.classList.contains("active")) return;
-  const requiredFilled = onboardFields.contactName.value &&
-                         onboardFields.sentiment.value &&
-                         onboardFields.techAbility.value &&
-                         onboardFields.phoneNumber.value;
-  onboardCopyBtn.disabled=!requiredFilled;
-  onboardSaveFileBtn.disabled=!requiredFilled;
+  text += `Integration Type: ${type}\n\n`;
+  text += `Contact Name: ${contact}\nPhone Number: ${phone}\nIntegration Status: ${status}\n\n`;
+  text += `Server Access: ${server}\nCalendar Sync Configured: ${calendar}\n\n`;
+  text += "Configs / Operatory Setup:\n";
+
+  if(calendar==="No"){ text += "• N/A\n"; }
+  else{
+    const rows = configsContainer.querySelectorAll(".config-row");
+    let skipNext=false;
+    rows.forEach((r,i)=>{
+      if(skipNext){ skipNext=false; return; }
+      const op = r.querySelector("input")?.value;
+      const dur = r.querySelector(".duration")?.value;
+      const strategy = r.querySelector(".strategy")?.value;
+      if(strategy==="Sequential"){
+        const next = r.nextElementSibling;
+        const op2 = next.querySelector("input")?.value;
+        const dur2 = next.querySelector(".duration")?.value;
+        text += `• ${op} | ${dur} To ${op2} | ${dur2} Sequential Room\n`;
+        skipNext=true;
+      } else {
+        text += `• ${op} | ${dur} ${strategy!=="Any Room"?`→ ${strategy}`:""}\n`;
+      }
+    });
+  }
+
+  text += `\nBlocker:\n${blocker.split("\n").map(l=>"• "+l).join("\n")}\n`;
+  text += `\nSetup Summary:\n${setup.split("\n").map(l=>"• "+l).join("\n")}`;
+
+  navigator.clipboard.writeText(text).then(()=>alert("Copied to clipboard!"));
 }
-Object.values(onboardFields).forEach(f=>f.addEventListener("input",validateOnboardFields));
-document.querySelectorAll('#sectionOnboardingNote input[type="radio"]').forEach(r=>r.addEventListener("change",validateOnboardFields));
 
+function saveIntegrationNotes(){
+  const practice = document.getElementById("practiceName").value.trim() || "EZNote";
+  const blob = new Blob([document.getElementById("setupSummary").value], {type:"text/plain;charset=utf-8"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = practice+".txt";
+  link.click();
+}
+
+function clearAll(){
+  document.getElementById("practiceName").value="";
+  document.getElementById("integrationType").value="";
+  document.getElementById("contactName").value="";
+  document.getElementById("phoneNumber").value="";
+  document.getElementById("integrationStatus").value="";
+  document.querySelectorAll('input[name="serverAccess"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('input[name="calendarSync"]').forEach(r=>r.checked=false);
+  configsContainer.innerHTML="";
+  document.getElementById("blocker").value="";
+  document.getElementById("setupSummary").value="";
+  validateIntegrationFields();
+}
+
+// =================== Onboarding Notes Validation / Copy / Save ===================
+function validateOnboardingFields(){
+  const section = document.getElementById("sectionOnboardingNote");
+  if(!section.classList.contains("active")) return;
+  const contact = document.getElementById("onboardContact").value.trim();
+  const phone = document.getElementById("onboardPhone").value.trim();
+  const sentiment = document.getElementById("onboardSentiment").value.trim();
+  const tech = document.getElementById("onboardTech").value.trim();
+  const allFilled = contact && phone && sentiment && tech;
+  document.getElementById("copyOnboardingBtn").disabled = !allFilled;
+  document.getElementById("saveOnboardingBtn").disabled = !allFilled;
+}
+
+function copyOnboardingNotes(){
+  let text = "";
+  text += `Main Contact Name: ${document.getElementById("onboardContact").value}\n`;
+  text += `Phone Number: ${document.getElementById("onboardPhone").value}\n`;
+  text += `Sentiment: ${document.getElementById("onboardSentiment").value}\n`;
+  text += `Tech Ability: ${document.getElementById("onboardTech").value}\n\n`;
+  text += "Insurances Added:\n";
+  document.querySelectorAll(".insurance-item").forEach(i=>{
+    const name = i.querySelector("label").childNodes[0].textContent.trim().slice(1);
+    const yes = i.querySelector("input[value='Yes']").checked;
+    text += `• ${name}: ${yes?"Yes":"No"}\n`;
+  });
+  text += `\nIntegration Eligible: ${document.getElementById("onboardEligible").value}\n`;
+  text += `Integration Date: ${document.getElementById("onboardDate").value}\n`;
+  const postOB = document.querySelector('input[name="postOB"]:checked')?.value||"";
+  text += `Post-OB Email Sent: ${postOB}\n`;
+  text += `Product Feedback: ${document.getElementById("onboardFeedback").value}\n`;
+  text += `Key Notes:\n${document.getElementById("onboardNotes").value.split("\n").map(l=>"• "+l).join("\n")}\n`;
+  text += `Meeting Context Notes + Remaining Actions:\n${document.getElementById("onboardMeeting").value.split("\n").map(l=>"• "+l).join("\n")}`;
+  navigator.clipboard.writeText(text).then(()=>alert("Copied to clipboard!"));
+}
+
+function saveOnboardingNotes(){
+  const contact = document.getElementById("onboardContact").value.trim() || "OnboardingNote";
+  const blob = new Blob([document.getElementById("onboardMeeting").value], {type:"text/plain;charset=utf-8"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = contact+".txt";
+  link.click();
+}
+
+function clearOnboardingAll(){
+  document.getElementById("onboardContact").value="";
+  document.getElementById("onboardPhone").value="";
+  document.getElementById("onboardSentiment").value="";
+  document.getElementById("onboardTech").value="";
+  document.querySelectorAll(".insurance-item input").forEach(r=>r.checked=false);
+  document.getElementById("onboardEligible").value="";
+  document.getElementById("onboardDate").value="";
+  document.querySelectorAll('input[name="postOB"]').forEach(r=>r.checked=false);
+  document.getElementById("onboardFeedback").value="";
+  document.getElementById("onboardNotes").value="";
+  document.getElementById("onboardMeeting").value="";
+  validateOnboardingFields();
+}
+
+// Trigger validation on input changes
+document.querySelectorAll("#sectionIntegrationNote input, #sectionIntegrationNote select, #sectionIntegrationNote textarea").forEach(e=>e.addEventListener("input",validateIntegrationFields));
+document.querySelectorAll("#sectionIntegrationNote input[name='serverAccess'], #sectionIntegrationNote input[name='calendarSync']").forEach(e=>e.addEventListener("change",validateIntegrationFields));
+document.querySelectorAll("#sectionOnboardingNote input, #sectionOnboardingNote textarea").forEach(e=>e.addEventListener("input",validateOnboardingFields));
+document.querySelectorAll("#sectionOnboardingNote input[type='radio']").forEach(e=>e.addEventListener("change",validateOnboardingFields));
 </script>
 </body>
 </html>
