@@ -250,7 +250,7 @@ function generateCurrentNote(){
   const serverAccess = document.querySelector('input[name="serverAccess"]:checked')?.value || "Not set";
   const calendarSync = document.querySelector('input[name="calendarSync"]:checked')?.value || "Not set";
 
-  let configsText = "- N/A";
+  let configsText = "• N/A";
   if(calendarSync === "Yes"){
     const rows = [...document.querySelectorAll(".config-row")];
     let result = [];
