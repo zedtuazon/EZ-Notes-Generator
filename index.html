@@ -32,6 +32,7 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
 .header { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 28px; font-weight: bold; margin-bottom: 16px; }
 #practiceName { width: 100%; height: 34px; box-sizing: border-box; }
 #configsSection { display: none; margin-top: 8px; }
+#addProviderBtn { margin-bottom: 8px; }
 hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
 </style>
 </head>
@@ -79,10 +80,10 @@ hr { border: 0; border-top: 1px solid #eee; margin: 12px 0; }
   <label><input type="radio" name="calendarSync" value="No"> <span class="no">✖</span>No</label>
 </div>
 
-<!-- Providers section directly below Calendar Sync -->
+<!-- Fixed Add Provider button -->
 <div id="configsSection">
+  <button class="add-btn" id="addProviderBtn" onclick="addProvider()">➕ Add Provider</button>
   <div id="providersContainer"></div>
-  <button class="add-btn" onclick="addProvider()">➕ Add Provider</button>
 </div>
 
 <label class="section">Blocker</label>
@@ -111,7 +112,6 @@ const blocker = document.getElementById("blocker");
 const setupSummary = document.getElementById("setupSummary");
 const copyBtn = document.getElementById("copyBtn");
 const saveFileBtn = document.getElementById("saveFileBtn");
-const gptFixBtn = document.getElementById("gptFixBtn");
 
 /* Duration dropdown */
 function durationDropdown(){
@@ -142,7 +142,6 @@ function addOperatoryRow(container, isSequential=false){
   `;
   const strategy = row.querySelector(".strategy");
   const arrow = row.querySelector(".arrow");
-
   row.querySelector(".remove-btn").onclick = ()=>row.remove();
 
   if(strategy){
@@ -188,7 +187,6 @@ document.querySelectorAll('input[name="calendarSync"]').forEach(r=>{
       configsSection.style.display = "none";
       providersContainer.innerHTML = "";
     }
-    validateFields();
   };
 });
 
@@ -279,16 +277,6 @@ function clearAll(){
   document.querySelectorAll("select").forEach(s=>s.selectedIndex=0);
   providersContainer.innerHTML="";
   configsSection.style.display="none";
-  validateFields();
-}
-
-/* Validate fields */
-function validateFields(){
-  const required = integrationType.value && integrationStatus.value &&
-    document.querySelector('input[name="serverAccess"]:checked') &&
-    document.querySelector('input[name="calendarSync"]:checked');
-  copyBtn.disabled = !required;
-  saveFileBtn.disabled = !required;
 }
 
 /* Copy to Clipboard */
@@ -312,7 +300,7 @@ saveFileBtn.onclick = ()=>{
 };
 
 /* GPT Fix */
-gptFixBtn.onclick = async()=>{
+document.getElementById("gptFixBtn").onclick = async()=>{
   if(!setupSummary.value) return;
   const res = await fetch(`${BACKEND_URL}/summary`,{
     method:"POST",
@@ -321,10 +309,6 @@ gptFixBtn.onclick = async()=>{
   });
   setupSummary.value = (await res.json()).cleaned;
 };
-
-/* Auto validate */
-[integrationType,integrationStatus,contactName,phoneNumber,blocker,setupSummary].forEach(el=>el.addEventListener("input",validateFields));
-document.querySelectorAll('input[name="serverAccess"],input[name="calendarSync"]').forEach(r=>r.addEventListener("change",validateFields));
 </script>
 
 </body>
