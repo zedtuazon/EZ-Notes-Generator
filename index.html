@@ -30,7 +30,6 @@ button:disabled { background:#f0f0f0; cursor:not-allowed; }
 #configsSection { display: none; margin-top: 4px; }
 </style>
 </head>
-
 <body>
 <div class="header">📝 EZ Note Generator</div>
 
@@ -191,7 +190,6 @@ function enableAutoBullets(textarea){
       .join("\n");
   });
 }
-
 enableAutoBullets(blocker);
 enableAutoBullets(setupSummary);
 
@@ -207,7 +205,7 @@ function generateCurrentNote(){
     let i = 0;
     while(i < rows.length){
       const row = rows[i];
-      const providers = row.querySelectorAll("input")[0]?.value || "";
+      const provider = row.querySelectorAll("input")[0]?.value || "";
       const operatory = row.querySelectorAll("input")[1]?.value || "";
       const dur = row.querySelector(".duration")?.value || "";
       const strat = row.querySelector(".strategy")?.value || "";
@@ -215,13 +213,10 @@ function generateCurrentNote(){
       if(strat === "Sequential"){
         const nextRow = rows[i+1];
         if(nextRow){
-          const nextProviders = nextRow.querySelectorAll("input")[0]?.value || "";
           const nextOperatory = nextRow.querySelectorAll("input")[1]?.value || "";
           const nextDur = nextRow.querySelector(".duration")?.value || "";
-          // Sequential combined
           const line = `${operatory} ${dur} to ${nextOperatory} ${nextDur} | Sequential Room`;
-          if(providers) result.push(`${providers}:\n    ${line}`);
-          else result.push(`• ${line}`);
+          result.push(`${provider}:\n    ${line}`);
           i+=2;
           continue;
         }
@@ -230,12 +225,10 @@ function generateCurrentNote(){
       // Non-sequential row
       let line = `${operatory} ${dur}`;
       if(strat) line += ` | ${strat.replace("s","")} Room`;
-      if(providers) result.push(`${providers}:\n    ${line}`);
-      else result.push(`• ${line}`);
-
+      result.push(`${provider}:\n    ${line}`);
       i++;
     }
-    configsText = result.map(r=>"• "+r.replace(/\n/g,"\n    ")).join("\n");
+    configsText = result.join("\n");
   }
 
   return `
